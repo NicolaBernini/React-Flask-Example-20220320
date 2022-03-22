@@ -37,12 +37,24 @@ const [swapToken, setSwapToken] = React.useState('DAI');
 
 const handleChangeSwapToken = (event, newValue) => {
   setSwapToken(newValue);
-  console.log(`NewVal = ${swapToken}`);
+  console.log(`[handleChangeSwapToken()] NewVal = ${newValue}`);
+  poolPrice(newValue, tradeAmount);
 };
 
 
 const [data, setData] = useState([]);
+
 const [tradeAmount, setTradeAmount] = useState('');
+
+const handleChangeTradeAmount = (event) => {
+  setTradeAmount(event.target.value);
+  console.log(`[handleChangeTradeAmount()] NewVal = ${event.target.value}`);
+  poolPrice(swapToken, event.target.value);
+};
+
+
+const [finalPrice, setFinalPrice] = useState('');
+
 
 const columns = React.useMemo(
   () => [
@@ -64,9 +76,23 @@ const columns = React.useMemo(
 
 function poolBuy() {
   //console.log(tradeAmount.target.value);
-  fetch(`/buy?token=${swapToken}&amount=${tradeAmount.target.value}`).then(res => res.json()).then(data => {
-    console.log(`Data is ${data.res}`);
+  fetch(`/buy?token=${swapToken}&amount=${tradeAmount}`).then(res => res.json()).then(data => {
+    //console.log(`Data is ${data.res}`);
+    setData(data);
   });
+}
+
+function poolPrice(token, amount) {
+
+  fetch(`/price?token=${token}&amount=${amount}`).then(res => res.json()).then(data => {
+    console.log(`Data is ${data.res}`);
+    setFinalPrice(data.res);
+  });
+
+  // fetch(`/price?token=${swapToken}&amount=${tradeAmount}`).then(res => res.json()).then(data => {
+  //   console.log(`Data is ${data.res}`);
+  //   setFinalPrice(data.res);
+  // });
 }
 
 const {
@@ -101,9 +127,6 @@ const {
     amount : 0
   }
   */
-
-
-
 
   return (
     <div className="App">
@@ -172,7 +195,10 @@ const {
         <ToggleButton value="DAI">DAI</ToggleButton>
         <ToggleButton value="WETH">WETH</ToggleButton>
       </ToggleButtonGroup>
-       <TextField id="amountBuy" label="Amount to buy" variant="filled" onChange={setTradeAmount}/> 
+       <TextField id="amountBuy" label="Amount to buy" variant="filled" onChange={handleChangeTradeAmount}/> 
+       <TextField id="estimatedOutput" label="Estimated Output" value={finalPrice} InputProps={{
+            readOnly: true,
+          }} /> 
 
      </div>
 
