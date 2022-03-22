@@ -1,4 +1,8 @@
 import React, { useState, useEffect } from 'react';
+import Button from '@mui/material/Button';
+import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
+import ToggleButton from '@mui/material/ToggleButton';
+import TextField from '@mui/material/TextField';
 import logo from './logo.svg';
 import './App.css';
 
@@ -29,7 +33,16 @@ function App() {
 );
 */
 
+const [swapToken, setSwapToken] = React.useState('DAI');
+
+const handleChangeSwapToken = (event, newValue) => {
+  setSwapToken(newValue);
+  console.log(`NewVal = ${swapToken}`);
+};
+
+
 const [data, setData] = useState([]);
+const [tradeAmount, setTradeAmount] = useState('');
 
 const columns = React.useMemo(
   () => [
@@ -42,12 +55,19 @@ const columns = React.useMemo(
       accessor: 'col2',
     },
     {
-      Header: 'TBD',
+      Header: 'Price',
       accessor: 'col3', // accessor is the "key" in the data
     },
   ],
   []
 );
+
+function poolBuy() {
+  //console.log(tradeAmount.target.value);
+  fetch(`/buy?token=${swapToken}&amount=${tradeAmount.target.value}`).then(res => res.json()).then(data => {
+    console.log(`Data is ${data.res}`);
+  });
+}
 
 const {
   getTableProps,
@@ -75,6 +95,15 @@ const {
       ); 
     });
   }, []);
+
+  /*
+  this.state = {
+    amount : 0
+  }
+  */
+
+
+
 
   return (
     <div className="App">
@@ -138,6 +167,13 @@ const {
          })}
          </tbody>
        </table>
+       <Button variant="contained" onClick={poolBuy}>Buy</Button>
+       <ToggleButtonGroup color="primary" value={swapToken} exclusive onChange={handleChangeSwapToken}>
+        <ToggleButton value="DAI">DAI</ToggleButton>
+        <ToggleButton value="WETH">WETH</ToggleButton>
+      </ToggleButtonGroup>
+       <TextField id="amountBuy" label="Amount to buy" variant="filled" onChange={setTradeAmount}/> 
+
      </div>
 
       </header>
